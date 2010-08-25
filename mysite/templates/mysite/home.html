@@ -1,0 +1,66 @@
+{% extends "mysite/page.html" %}
+
+{% block content %}
+<div id="toaster"><div class="toaster-inner">
+    You just got the
+    <strong>`visited awards website'</strong>
+    award<br/>
+    <a href=''>See all awards</a>
+</div></div>
+
+<h2>your awards</h2>
+<ul class="sites">
+{% for source, source_awards in awards.items %}
+    <li><h3>from {{ source }}</h3>
+        <ul class="awards">
+            {% for award in source_awards %}
+            <li class="award">
+                <div class="name">{{ award.name }}</div>
+                {% ifnotequal award.number 1 %}
+                    <div class="number">&times;{{ award.number }}</div>
+                {% endifnotequal %}
+            </li>
+            {% endfor %}
+        </ul>
+    </li>
+{% endfor %}
+</ul>
+
+<script>
+    function show_toaster() {
+        $("#toaster").animate({top:"0px"}, 1000);
+    }
+    
+    function hide_toaster() {
+        $("#toaster").animate({top:-($("#toaster").height()-10)+"px"}, 2000);
+    }
+
+    function toggle_toaster() {
+        if($("#toaster").css("top") == "0px") {
+            hide_toaster();
+        }
+        else {
+            show_toaster();
+        }
+    }
+
+    function animate_awards() {
+        $("li.award").css("position", "relative");
+        $("li.award").css("left", "100%");
+        $("li.award").animate({left:0}, 1000);
+    }
+
+    function make_award() {
+        
+    }
+
+    $("#toaster").click(toggle_toaster);
+    
+    $(document).ready(function() {
+        $("#toaster").css("top", -$("#toaster").height()+"px");
+        show_toaster();
+        setTimeout('hide_toaster()', 10000);
+    });
+</script>
+
+{% endblock %}
