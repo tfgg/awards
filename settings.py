@@ -6,7 +6,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
+    ('Tim Green', 'timothy.green@gmail.com'),
 )
 
 MANAGERS = ADMINS
@@ -23,11 +23,11 @@ DATABASE_PORT = ''             # Set to empty string for default. Not used with 
 # although not all choices may be available on all operating systems.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'Europe/London'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en-gb'
 
 SITE_ID = 1
 
@@ -50,7 +50,7 @@ MEDIA_URL = '/static/'
 ADMIN_MEDIA_PREFIX = '/resources/'
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'r4z*!%nyltvozhu#5u_j8%m5hl9ciocp-hgq^w+gh*xy_kuv-p'
+SECRET_KEY = '' # defined in local_settings.py
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -91,3 +91,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'mysite',
 )
+
+try:
+    from local_settings import *
+except ImportError:
+    pass
