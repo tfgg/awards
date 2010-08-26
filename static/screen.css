@@ -1,6 +1,7 @@
 * {
     margin:0;
     padding:0;
+    border:0;
 }
 
 body {
@@ -58,6 +59,17 @@ li.award .name {
 li.award .number {
     font-size:0.9em;
     text-align:center;
+}
+
+.register-notice {
+    padding:10px;
+    border:1px solid #CCC;
+    font-size:0.9em;
+    margin-bottom:1em;
+}
+
+.register-notice input {
+    padding:2px;
 }
 
 /* toaster */

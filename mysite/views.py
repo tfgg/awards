@@ -19,8 +19,8 @@ def h(s):
 def home(request):
     fingerprint = [("email-sha1", h("tfgg2@cam.ac.uk")), ("ip-sha1", h(request.META['REMOTE_ADDR']))]
     
-    award_client = AwardClient("dc", "1234567890")
-    award_client.make_award("Well done, the award client works", fingerprint)
+    award_client = AwardClient("awards", "0123456789")
+    award_client.make_award("Visited the awards site", fingerprint)
 
     user = fingerprint_user("awards", fingerprint)
 

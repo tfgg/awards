@@ -2,11 +2,13 @@
 
 {% block content %}
 <div id="toaster"><div class="toaster-inner">
-    You just got the
-    <strong>`visited awards website'</strong>
-    award<br/>
-    <a href=''>See all awards</a>
+
 </div></div>
+
+<div class="register-notice">
+Associate an email address and password with your awards to start collecting them.<br/>
+<input name="email"/> <input name="password"/> <input type="submit" value="save"/>
+</div>
 
 <h2>your awards</h2>
 <ul class="sites">
@@ -44,22 +46,23 @@
         }
     }
 
+    function toaster_message(msg) {
+        $("#toaster .toaster-inner").html(msg + "<br/><a href=''>See all awards</a>");
+        show_toaster();
+        setTimeout('hide_toaster()', 10000);
+    }
+
     function animate_awards() {
         $("li.award").css("position", "relative");
         $("li.award").css("left", "100%");
         $("li.award").animate({left:0}, 1000);
     }
 
-    function make_award() {
-        
-    }
-
     $("#toaster").click(toggle_toaster);
     
     $(document).ready(function() {
         $("#toaster").css("top", -$("#toaster").height()+"px");
-        show_toaster();
-        setTimeout('hide_toaster()', 10000);
+        toaster_message("You just got the <strong>Visited the awards site</strong> award");
     });
 </script>
 
