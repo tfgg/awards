@@ -73,15 +73,11 @@ li.award .number {
 }
 
 /* toaster */
-#toaster {
-    position:absolute;
-    top:-200px;
+.toaster {
+    position:fixed;
+    bottom:-200px;
     right:100px;
-    width:150px;
-    border-bottom-left-radius:10px;
-    border-bottom-right-radius:10px;
-    -moz-border-radius-bottomleft:10px;
-    -moz-border-radius-bottomright:10px;
+    width:200px;
     background:white;
     color:#111;
     font-size:0.8em;

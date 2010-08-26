@@ -29,40 +29,68 @@ Associate an email address and password with your awards to start collecting the
 </ul>
 
 <script>
-    function show_toaster() {
-        $("#toaster").animate({top:"0px"}, 1000);
+    toaster_top = true;
+    gap = 10;
+    top_toaster = null;
+
+    function show_toaster(el) {
+        el.show().css("opacity", "0");
+        if(toaster_top)
+            el.animate({opacity:"1", top:el.final_pos+"px"}, 1000);
+        else
+            el.animate({opacity:"1", bottom:el.final_pos+"px"}, 1000);
     }
     
-    function hide_toaster() {
-        $("#toaster").animate({top:-($("#toaster").height()-10)+"px"}, 2000);
+    function hide_toaster(el) {
+        el.fadeOut(1000, function(){ el.remove(); });
+        if(top_toaster == el) top_toaster = null;
     }
-
-    function toggle_toaster() {
-        if($("#toaster").css("top") == "0px") {
-            hide_toaster();
-        }
-        else {
-            show_toaster();
-        }
+    
+    function add_corners(el) {
+            el.css("-moz-border-radius-bottomleft", "10px")
+            el.css("-moz-border-radius-bottomright", "10px")
+            el.css("-moz-border-radius-topleft", "10px")
+            el.css("-moz-border-radius-topright", "10px")
     }
 
     function toaster_message(msg) {
-        $("#toaster .toaster-inner").html(msg + "<br/><a href=''>See all awards</a>");
-        show_toaster();
-        setTimeout('hide_toaster()', 10000);
-    }
+        el = $('<div class="toaster"><div class="toaster-inner">'+msg+'</div></div>').appendTo('#content');
+        
+        //el.click(function(){ hide_toaster(el); });
 
-    function animate_awards() {
-        $("li.award").css("position", "relative");
-        $("li.award").css("left", "100%");
-        $("li.award").animate({left:0}, 1000);
-    }
+        pos = -el.height();
+        if(top_toaster != null)
+        {
+            if(toaster_top)
+                pos += top_toaster.final_pos + top_toaster.height();
+            else
+                pos += top_toaster.final_pos + top_toaster.height();
 
-    $("#toaster").click(toggle_toaster);
+            top_toaster = el;
+        }
+        else
+            top_toaster = el;
+
+        if(toaster_top)
+            el.css("top", pos+"px");
+        else
+            el.css("bottom", pos+"px");
+
+        el.final_pos = pos+el.height()+gap;
+
+        el.hide();
+        
+        add_corners(el);
+        show_toaster(el);
+        
+        setTimeout(function(el) { hide_toaster(el); }, 10000, el);
+
+        return el;
+    }
     
     $(document).ready(function() {
-        $("#toaster").css("top", -$("#toaster").height()+"px");
         toaster_message("You just got the <strong>Visited the awards site</strong> award");
+        setTimeout('toaster_message("<a href=\'\'>Associate your awards account here</a>");', 500);
     });
 </script>
 
