@@ -75,7 +75,6 @@ li.award .number {
 /* toaster */
 .toaster {
     position:fixed;
-    bottom:-200px;
     right:100px;
     width:200px;
     background:white;
