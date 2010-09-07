@@ -38,7 +38,8 @@ class AwardManager(Manager):
         try:
             award = self.get(user=user, name=name, source=source)
         except Award.DoesNotExist:
-            print "Doesn't exist"
+            #print "Doesn't exist"
+            pass
         
         if award is not None:
             award.number += 1

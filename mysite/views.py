@@ -1,5 +1,8 @@
 # coding: utf-8
-import json
+try:
+    import json
+except ImportError:
+    import simplejson as json
 import urllib
 import hashlib
 import datetime
@@ -17,12 +20,13 @@ def h(s):
     return hashlib.sha1(s).hexdigest()
 
 def home(request):
-    fingerprint = [("email-sha1", h("tfgg2@cam.ac.uk")), ("ip-sha1", h(request.META['REMOTE_ADDR']))]
+    fingerprint = [("email-sha1", h("tfgg2@cam.ac.uk")), ("ip-sha1", h(request.META['HTTP_X_FORWARDED_FOR']))]
     
     award_client = AwardClient("awards", "0123456789")
     award_client.make_award("Visited the awards site", fingerprint)
 
-    user = fingerprint_user("awards", fingerprint)
+    source = RegisteredSite.objects.get(slug="awards")
+    user = fingerprint_user(source, fingerprint)
 
     context = {'user': user,}
 
@@ -47,7 +51,7 @@ def urlencode_sorted(args):
     return urllib.urlencode(sorted(args.items()))
 
 class AwardClient:
-    service_url = "http://localhost/api/"
+    service_url = "http://whatisav.co.uk/api/"
 
     def __init__(self, slug, key):
         self.slug = slug
@@ -65,7 +69,8 @@ class AwardClient:
             resp = urllib.urlopen(url)
             cval = resp.headers, resp.read()
         except IOError:
-            cval = None, None 
+            cval = None, None
+
 def fingerprint_user(source, fingerprint):
     fingerprint_misses = []
 
@@ -127,10 +132,10 @@ def submit_award(request):
         user = fingerprint_user(source, fingerprint)
     except Fingerprint.CannotMatch:
         # Create a new user
-        print "Cannot match"
+        #print "Cannot match"
         user = None
     except Fingerprint.Contradiction:
-        print "Contradiction"
+        #print "Contradiction"
         user = None
 
     name = POST['name']
