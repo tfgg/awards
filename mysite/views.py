@@ -25,14 +25,18 @@ def django_fingerprint_login(request, fingerprint):
         pass
 
     if user is not None:
-        authenticate()
+        user = authenticate(username=user.username, password='')
         login(request, user)
 
 def decorator_fingerprint_login(f):
     def fn(request, *args, **kwargs):
-        fingerprint = django_fingerprint(request)
-        django_fingerprint_login(request, fingerprint)
-        return f(*args, **kwargs)
+        print request.user.is_authenticated()
+        if not request.user.is_authenticated():
+            fingerprint = django_fingerprint(request)
+            django_fingerprint_login(request, fingerprint)
+            print request.user
+            print request.user.is_authenticated()
+        return f(request, *args, **kwargs)
     return fn
 
 @decorator_fingerprint_login
@@ -45,6 +49,9 @@ def home(request):
             context['awards'][award.source].append(award)
         else:
             context['awards'][award.source] = [award]
+            
+    print request.user.is_authenticated()
+    print request.user
 
     return render_to_response("mysite/home.html", context)
 

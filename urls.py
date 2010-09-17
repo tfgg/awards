@@ -1,4 +1,6 @@
 from django.conf.urls.defaults import *
+from settings import MEDIA_ROOT
+from django.views.static import serve
 
 import mysite
 
@@ -19,4 +21,7 @@ urlpatterns = patterns('',
     (r'^', include('awards.mysite.urls')),
     #(r'^login/$', 'django.contrib.auth.views.login'),#, {'template_name': 'login.html'}),
     #(r'^logout/$', 'django.contrib.auth.views.logout', {'next_page': '/'}),
+	(r'^static/(?P<path>.*)$', serve,
+     {'document_root': MEDIA_ROOT,
+      'show_indexes': True}),
 )
