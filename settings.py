@@ -65,6 +65,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 )
 
+AUTHENTICATION_BACKENDS = ('awards.backends.NoAuthBackend',)
+
 ROOT_URLCONF = 'awards.urls'
 
 TEMPLATE_DIRS = (

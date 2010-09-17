@@ -1,11 +1,4 @@
 # coding: utf-8
-try:
-    import json
-except ImportError:
-    import simplejson as json
-import urllib
-import hashlib
-import datetime
 
 from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -13,26 +6,40 @@ from django.template import RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
 
+from django.contrib.auth import authenticate, login
+
 from django.contrib.auth.models import User
 from models import RegisteredSite, Fingerprint, Award
 
-def h(s):
-    return hashlib.sha1(s).hexdigest()
+from awardslib import AwardClient, django_fingerprint
 
+award_client = AwardClient("awards", "0123456789")
+this_source = RegisteredSite.objects.get(slug="awards")
+
+def django_fingerprint_login(request, fingerprint):
+    # Attempt to log a user in with their fingerprint
+    user = None
+    try:
+        user = find_user(this_source, fingerprint)
+    except Fingerprint.CannotMatch:
+        pass
+
+    if user is not None:
+        authenticate()
+        login(request, user)
+
+def decorator_fingerprint_login(f):
+    def fn(request, *args, **kwargs):
+        fingerprint = django_fingerprint(request)
+        django_fingerprint_login(request, fingerprint)
+        return f(*args, **kwargs)
+    return fn
+
+@decorator_fingerprint_login
 def home(request):
-    fingerprint = [("email-sha1", h("tfgg2@cam.ac.uk")), ("ip-sha1", h(request.META['HTTP_X_FORWARDED_FOR']))]
-    
-    award_client = AwardClient("awards", "0123456789")
-    award_client.make_award("Visited the awards site", fingerprint)
+    context = {'awards': {},}
 
-    source = RegisteredSite.objects.get(slug="awards")
-    user = fingerprint_user(source, fingerprint)
-
-    context = {'user': user,}
-
-    awards = Award.objects.order_by("source").all()
-    context['awards'] = {}
-
+    awards = Award.objects.filter(user=request.user).order_by("source").all()
     for award in awards:
         if award.source in context['awards']:
             context['awards'][award.source].append(award)
@@ -41,37 +48,13 @@ def home(request):
 
     return render_to_response("mysite/home.html", context)
 
-def sign_args(args, key):
-    return hashlib.sha1(urlencode_sorted(args) + key).hexdigest()
-
-def verify_sig(sig, args, key):
-    return sig == sign_args(args, key)
-
-def urlencode_sorted(args):
-    return urllib.urlencode(sorted(args.items()))
-
-class AwardClient:
-    service_url = "http://whatisav.co.uk/api/"
-
-    def __init__(self, slug, key):
-        self.slug = slug
-        self.key = key
+def client(request):
+    fingerprint = django_fingerprint(request)
+    award_client.make_award("Visited the awards site", fingerprint)
     
-    def make_award(self, award_name, fingerprint):
-        args = {'source': self.slug,
-                'name': award_name,
-                'fingerprint': json.dumps(fingerprint),
-                'time': datetime.datetime.now().isoformat()}
-        
-        url = "%s%s?%s&sig=%s" % (self.service_url, "submit_award", urlencode_sorted(args), sign_args(args, self.key))
-        
-        try:
-            resp = urllib.urlopen(url)
-            cval = resp.headers, resp.read()
-        except IOError:
-            cval = None, None
+    return HttpResponseRedirect("/")
 
-def fingerprint_user(source, fingerprint):
+def find_user(source, fingerprint):
     fingerprint_misses = []
 
     user = None
@@ -91,6 +74,7 @@ def fingerprint_user(source, fingerprint):
         else:
             fingerprint_misses.append((print_type, data))
 
+    # If we identify the user, also add their other fingerprint info
     if user:
         for print_type, data in fingerprint_misses:
             Fingerprint.objects.create(user=user,
@@ -129,7 +113,7 @@ def submit_award(request):
     
     user = None
     try:
-        user = fingerprint_user(source, fingerprint)
+        user = find_user(source, fingerprint)
     except Fingerprint.CannotMatch:
         # Create a new user
         #print "Cannot match"
