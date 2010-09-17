@@ -3,4 +3,5 @@ local_settings.py
 django.pid
 awarddb
 resources
-
+xcodeproj
+.DS_store
