@@ -4,7 +4,7 @@ import urllib
 import hashlib
 import datetime
 
-from settings import AWARDS_API_URL
+from awards.settings import AWARDS_API_URL
 
 try:
     import json
