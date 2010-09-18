@@ -52,6 +52,9 @@ ADMIN_MEDIA_PREFIX = '/static/admin/'
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '' # defined in local_settings.py
 
+# 
+AWARDS_API_URL = "http://localhost:8000/"
+
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.load_template_source',

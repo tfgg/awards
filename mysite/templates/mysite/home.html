@@ -3,8 +3,8 @@
 {% block content %}
     <div id="toaster"><div class="toaster-inner"></div></div>
     <script language="javascript" src="/static/awards.js"></script>
-        
-    {% if not request.user.is_authenticated %}
+    
+    {% if request.user.is_authenticated == false %}
         You aren't logged in.
         
         <script>

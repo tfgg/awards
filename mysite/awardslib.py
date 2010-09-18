@@ -4,6 +4,8 @@ import urllib
 import hashlib
 import datetime
 
+from settings import AWARDS_API_URL
+
 try:
     import json
 except ImportError:
@@ -22,8 +24,8 @@ def urlencode_sorted(args):
     return urllib.urlencode(sorted(args.items()))
 
 class AwardClient:
-    service_url = "http://whatisav.co.uk/api/"
-
+    service_url = AWARDS_API_URL
+    
     def __init__(self, slug, key):
         self.slug = slug
         self.key = key

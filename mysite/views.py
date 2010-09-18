@@ -30,14 +30,20 @@ def django_fingerprint_login(request, fingerprint):
 
 def decorator_fingerprint_login(f):
     def fn(request, *args, **kwargs):
-        print request.user.is_authenticated()
         if not request.user.is_authenticated():
             fingerprint = django_fingerprint(request)
             django_fingerprint_login(request, fingerprint)
-            print request.user
-            print request.user.is_authenticated()
         return f(request, *args, **kwargs)
     return fn
+    
+def render_with_context(request,
+                        template,
+                        context,
+                        **kw):
+    kw['context_instance'] = RequestContext(request)
+    return render_to_response(template,
+                              context,
+                              **kw)
 
 @decorator_fingerprint_login
 def home(request):
@@ -49,15 +55,14 @@ def home(request):
             context['awards'][award.source].append(award)
         else:
             context['awards'][award.source] = [award]
-            
-    print request.user.is_authenticated()
-    print request.user
 
-    return render_to_response("mysite/home.html", context)
+    return render_with_context(request, "mysite/home.html", context)
 
 def client(request):
     fingerprint = django_fingerprint(request)
     award_client.make_award("Visited the awards site", fingerprint)
+    
+    print fingerprint
     
     return HttpResponseRedirect("/")
 
