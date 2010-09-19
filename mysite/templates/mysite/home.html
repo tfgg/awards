@@ -4,6 +4,10 @@
     <div id="toaster"><div class="toaster-inner"></div></div>
     <script language="javascript" src="/static/awards.js"></script>
     
+    <script>
+        $.post('/api/submit_award', {name: 'AJAX!', source: 'awards'});
+    </script>
+    
     {% if request.user.is_authenticated %}
         <div class="register-notice">
         Associate an email address and password with your awards to start collecting them.<br/>

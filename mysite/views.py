@@ -1,14 +1,18 @@
 # coding: utf-8
 
+import hashlib
+import time
+
 from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
-
 from django.contrib.auth import authenticate, login
-
 from django.contrib.auth.models import User
+
+from settings import SECRET_KEY
+
 from models import RegisteredSite, Fingerprint, Award
 
 from awardslib import AwardClient, django_fingerprint
@@ -62,8 +66,6 @@ def client(request):
     fingerprint = django_fingerprint(request)
     award_client.make_award("Visited the awards site", fingerprint)
     
-    print fingerprint
-    
     return HttpResponseRedirect("/")
 
 def find_user(source, fingerprint):
@@ -101,35 +103,32 @@ def find_user(source, fingerprint):
 
 def submit_award(request):
     POST = request.REQUEST
-
-    try:
-        source = RegisteredSite.objects.get(slug=POST['source'])
-    except KeyError:
-        raise Http404("Please give a source slug")
-    except RegisteredSite.DoesNotExist:
-        raise Http404("Can't find source: %s" % POST['source'])
+    COOKIES = request.COOKIES
 
     args = {}
-    args['source'] = POST['source']
-    args['fingerprint'] = POST['fingerprint']
-    args['name'] = POST['name']
-    args['time'] = POST['time']
-    
-    if 'points_value' in POST:
-        args['points_value'] = POST['points_value']
 
-    if verify_sig(POST['sig'], args, source.secret_key) == False:
-        raise Http404("Bad signature")
-        
-    fingerprint = json.loads(POST['fingerprint'])
+    if 'source' in POST:
+        try:
+            source = RegisteredSite.objects.get(slug=POST['source'])
+        except RegisteredSite.DoesNotExist:
+            raise Http404("Can't find source: %s" % POST['source'])
+    else:
+        raise Http404("Please give a source slug")
+    
+    fingerprint = {}
+    if 'fingerprint' in POST:
+        fingerprint = json.loads(POST['fingerprint'])
+    
+    if 'awards_cookie' in COOKIES:
+        fingerprint['cookie'] = COOKIES['awards_cookie']
     
     user = None
     try:
         user = find_user(source, fingerprint)
     except Fingerprint.CannotMatch:
-        # Create a new user
-        #print "Cannot match"
-        user = None
+        # Create a new temporary user
+        random_username = "anon" + hashlib.sha1(str(time.time())).hexdigest()[:5]
+        user = User.objects.create_user(random_username, random_username + "@awards") 
     except Fingerprint.Contradiction:
         #print "Contradiction"
         user = None
@@ -144,7 +143,23 @@ def submit_award(request):
     if user:
         award = Award.objects.make_award(name, user, source, points_value)
 
-    return HttpResponse(str(user))
+    response = HttpResponse(str(user))
+    
+    # Find the cookie for this user, if not, make a new one
+    cookie = None
+    try:
+        cookie = Fingerprint.objects.get(print_type="cookie",
+                                         source=this_source,
+                                         user=user)
+    except Fingerprint.DoesNotExist:
+        cookie_string = hashlib.sha1(user.username + user.email + SECRET_KEY).hexdigest()
+        cookie = Fingerprint.objects.create(print_type="cookie",
+                                            source=this_source,
+                                            user=user,
+                                            data=cookie_string)
+        response.set_cookie('awards_cookie', value=cookie_string, max_age=86400*365)
+    
+    return response
 
     
 
