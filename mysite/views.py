@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 
-from settings import SECRET_KEY
+from awards.settings import SECRET_KEY
 
 from models import RegisteredSite, Fingerprint, Award
 
