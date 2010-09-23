@@ -72,16 +72,3 @@ li.award .number {
     padding:2px;
 }
 
-/* toaster */
-.toaster {
-    position:fixed;
-    right:100px;
-    width:200px;
-    background:white;
-    color:#111;
-    font-size:0.8em;
-}
-
-.toaster-inner {
-    padding:10px;
-}

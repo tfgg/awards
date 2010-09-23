@@ -23,7 +23,7 @@ function add_corners(el) {
 }
 
 function toaster_message(msg) {
-    el = $('<div class="toaster"><div class="toaster-inner">'+msg+'</div></div>').appendTo('#content');
+    el = $('<div class="toaster"><div class="toaster-inner">'+msg+'</div></div>').appendTo('body');
     
     //el.click(function(){ hide_toaster(el); });
     
@@ -58,14 +58,19 @@ function toaster_message(msg) {
 }
 
 function make_award(award_name) {
-    $.post('http://localhost/api/submit_award',
+    $.post('http://whatisav.co.uk/api/submit_award',
            { name: award_name, source: 'awards' },
            function(data) {
                 data = jQuery.parseJSON(data);
-                toaster_message("<a href='http://localhost/users/" + data['user'] + "'>Awarded '" + award_name + "' to " + data['user'] + "</a>");
+                toaster_message("<a href='http://whatisav.co.uk/users/" + data['user'] + "'>Awarded '" + award_name + "' to " + data['user'] + "</a>");
 
                 if(data['temporary_account']) {
                     toaster_message("Register your account here");
                 }
           });
+}
+
+function make_award_iframe(award_name) {
+    api_url = "http://whatisav.co.uk/api/submit_award?source=awards&iframe=true&name=" + award_name;
+    msg_el = toaster_message('<iframe src="' + api_url + '"></iframe>');
 }

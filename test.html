@@ -1,15 +1,21 @@
 <html>
 <head>
     <script language="javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-    <script language="javascript" src="http://whatisav.co.uk/static/awards.js"></script>
+    <script language="javascript" src="http://localhost/static/awards.js"></script>
+    <link rel="stylesheet" href="http://localhost/static/awards-client.css" type="text/css" media="screen, projection"/>
+    <style>
+        body {
+            background:black;
+        }
+    </style>
 </head>
 <body>
 <script>
     $(document).ready(function() {
-        make_award("Test award");
+        make_award_iframe("Test award");
+        make_award_iframe("Test award 2");
     });
 </script>
-<iframe src="http://whatisav.co.uk/api/submit_award?source=awards&name=iframe!&iframe=true">
-</iframe>
 </body>
-<html>
+</html>
+
