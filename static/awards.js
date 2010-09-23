@@ -61,6 +61,8 @@ function make_award(award_name) {
     $.post('http://whatisav.co.uk/api/submit_award',
            { name: award_name, source: 'awards' },
            function(data) {
+                if(data == "") alert("No response from API");
+                
                 data = jQuery.parseJSON(data);
                 toaster_message("<a href='http://whatisav.co.uk/users/" + data['user'] + "'>Awarded '" + award_name + "' to " + data['user'] + "</a>");
 
