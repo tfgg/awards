@@ -4,10 +4,6 @@
     <div id="toaster"><div class="toaster-inner"></div></div>
     <script language="javascript" src="/static/awards.js"></script>
     
-    <script>
-        $.post('/api/submit_award', {name: 'AJAX!', source: 'awards'});
-    </script>
-    
     {% if request.user.is_authenticated %}
         <div class="register-notice">
         Associate an email address and password with your awards to start collecting them.<br/>
@@ -34,8 +30,7 @@
 
         <script>
             $(document).ready(function() {
-                toaster_message("You just got the <strong>Visited the awards site</strong> award");
-                setTimeout('toaster_message("<a href=\'\'>Associate your awards account here</a>");', 500);
+                //setTimeout('toaster_message("<a href=\'\'>Associate your awards account here</a>");', 500);
             });
         </script>
     {% else %}

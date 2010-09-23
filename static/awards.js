@@ -56,3 +56,16 @@ function toaster_message(msg) {
     
     return el;
 }
+
+function make_award(award_name) {
+    $.post('http://localhost/api/submit_award',
+           { name: award_name, source: 'awards' },
+           function(data) {
+                data = jQuery.parseJSON(data);
+                toaster_message("<a href='http://localhost/users/" + data['user'] + "'>Awarded '" + award_name + "' to " + data['user'] + "</a>");
+
+                if(data['temporary_account']) {
+                    toaster_message("Register your account here");
+                }
+          });
+}

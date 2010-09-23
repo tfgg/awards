@@ -3,9 +3,15 @@
 import hashlib
 import time
 
+try:
+    import json
+except ImportError:
+    import simplejson as json
+
 from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
+from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login
@@ -21,7 +27,7 @@ award_client = AwardClient("awards", "0123456789")
 this_source = RegisteredSite.objects.get(slug="awards")
 
 def django_fingerprint_login(request, fingerprint):
-    # Attempt to log a user in with their fingerprint
+    # Attempt to log a user in with their fingerprint or cookie
     user = None
     try:
         user = find_user(this_source, fingerprint)
@@ -123,27 +129,43 @@ def submit_award(request):
         fingerprint['cookie'] = COOKIES['awards_cookie']
     
     user = None
-    try:
-        user = find_user(source, fingerprint)
-    except Fingerprint.CannotMatch:
-        # Create a new temporary user
-        random_username = "anon" + hashlib.sha1(str(time.time())).hexdigest()[:5]
-        user = User.objects.create_user(random_username, random_username + "@awards") 
-    except Fingerprint.Contradiction:
-        #print "Contradiction"
-        user = None
+    temporary_user = False
+    
+    if request.user.is_authenticated():
+        user = request.user
+    else:
+        try:
+            user = find_user(source, fingerprint.items())
+        except Fingerprint.CannotMatch:
+            # Create a new temporary user
+            random_username = "anon" + hashlib.sha1(str(time.time())).hexdigest()[:5]
+            user = User.objects.create_user(random_username, random_username + "@awards")
+            temporary_user = True 
+        except Fingerprint.Contradiction:
+            user = None
 
-    name = POST['name']
+    award_name = POST['name']
 
-    points_value = 0
+    award_points = 0
     if 'points_value' in POST:
-        points_value = int(POST['points_value'])
+        award_points = int(POST['points_value'])
 
     award = None
     if user:
-        award = Award.objects.make_award(name, user, source, points_value)
+        award = Award.objects.make_award(award_name, user, source, award_points)
 
-    response = HttpResponse(str(user))
+    response_text = ""
+
+    if 'iframe' in POST and POST['iframe'] == "true":
+        template_context = {'temporary_account': temporary_user,
+                            'user': user,
+                            'award_name': award_name,
+                            'award_points': award_points,}
+        response_text = render_to_string("mysite/iframe.html", template_context);
+    else:    
+        response_text = json.dumps({'temporary_account': temporary_user,
+                                'user': str(user), })
+    response = HttpResponse(response_text)
     
     # Find the cookie for this user, if not, make a new one
     cookie = None
