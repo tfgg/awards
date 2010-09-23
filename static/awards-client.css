@@ -1,0 +1,19 @@
+/* toaster */
+.toaster {
+    position:fixed;
+    right:100px;
+    width:200px;
+    background:white;
+    color:#111;
+    font-size:0.8em;
+}
+
+.toaster-inner {
+
+}
+
+iframe {
+    border:0;
+    width:200px;
+    height:4em;
+}
